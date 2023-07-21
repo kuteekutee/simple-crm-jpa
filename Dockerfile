@@ -1,9 +1,7 @@
-FROM openjdk:17
+FROM eclipse-temurin:17.0.7-jdk
 
 WORKDIR /app
 
-COPY target/simple-crm-0.0.1-SNAPSHOT.jar /app/
+COPY target/simple-crm-0.0.1.jar crm-app.jar
 
-EXPOSE 8080
-
-CMD ["java", "-jar", "simple-crm-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "crm-app.jar"]
