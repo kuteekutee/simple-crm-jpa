@@ -8,14 +8,17 @@ jobs:
       - checkout
 
       # Package into a jar
-      run: mvn clean package
+      - run: mvn clean package
 
       # configure CircleCI to use Docker
       - setup_remote_docker
-      # Build docker image and tag it with commit SHA, then push to docker hub
-      command:
-        docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-        docker build -t ${DOCKER_USER}/simple-crm:${CIRCLE_SHA1} .
-        docker build -t ${DOCKER_USER}/simple-crm:latest .
-        docker push ${DOCKER_USER}/simple-crm:${CIRCLE_SHA1}
-        docker push ${DOCKER_USER}/simple-crm:latest
+
+      - run:
+          name: Build and Push Docker Image
+          # Build docker image and tag it with commit SHA, then push to docker hub
+          command:
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+            docker build -t ${DOCKER_USER}/simple-crm:${CIRCLE_SHA1} .
+            docker build -t ${DOCKER_USER}/simple-crm:latest .
+            docker push ${DOCKER_USER}/simple-crm:${CIRCLE_SHA1}
+            docker push ${DOCKER_USER}/simple-crm:latest
