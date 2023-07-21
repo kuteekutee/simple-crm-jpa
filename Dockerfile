@@ -1,4 +1,4 @@
-FROM openjdk:17.0.7
+FROM eclipse-temurin:17.0.7_7-jdk
 
 WORKDIR /app
 
