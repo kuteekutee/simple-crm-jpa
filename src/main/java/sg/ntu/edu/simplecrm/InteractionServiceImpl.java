@@ -62,11 +62,4 @@ public class InteractionServiceImpl implements InteractionService {
     interactionRepository.deleteById(id);
   }
 
-  // @Override
-  // public Interactions addInteractionToCustomer(int id, Interactions interaction) {
-  //   Customer selectedCustomer = CustomerRepository.findById(id).get();
-  //   interaction.setCustomer(selectedCustomer);
-  //   return interactionRepository.save(interaction);
-
-  // }
 }
