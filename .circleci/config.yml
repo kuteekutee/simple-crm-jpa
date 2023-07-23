@@ -1,4 +1,7 @@
 version: 2.1
+orbs:
+  docker: circleci/docker@2.2.0
+  heroku: circleci/heroku@2.0.0
 jobs:
   build:
     docker:
@@ -10,19 +13,66 @@ jobs:
       # Package into a jar
       - run: mvn clean package
 
-      # configure CircleCI to use Docker
+  test:
+    docker:
+      - image: cimg/openjdk:17.0.7
+    steps:
+      - checkout
+      - run: |
+          echo “Running tests...”
+          mvn test
+  
+  build-and-push:
+    executor: docker/docker    
+    steps:
       - setup_remote_docker
+      - checkout
+      - docker/check
+      - docker/build:
+          image: ${DOCKER_USER}/simple-crm-jpa
+          tag: <<pipeline.git.tag>>
+      - docker/push:
+          image: ${DOCKER_USER}/simple-crm-jpa
+          tag: <<pipeline.git.tag>>
 
+  deploy:
+    docker:
+      - image: cimg/openjdk:17.0.7
+    steps:
+      - setup_remote_docker      
+      - heroku/install
+      - checkout
       - run:
-          name: Build and Push Docker Image
-          # Build docker image and tag it with commit SHA, then push to docker hub
-          command:
-            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+          name: Heroku Container Push
+          command: | 
+            heroku container:login
+            heroku container:push web -a simple-crm-jpa
+            heroku container:release web -a simple-crm-jpa
 
-            docker build -t ${DOCKER_USER}/simple-crm-jpa:${CIRCLE_SHA1} .
-
-            docker build -t ${DOCKER_USER}/simple-crm-jpa:latest .
-
-            docker push ${DOCKER_USER}/simple-crm-jpa:${CIRCLE_SHA1}
-
-            docker push ${DOCKER_USER}/simple-crm-jpa:latest
+workflows:
+  simple_crm_workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: main
+      - test:
+          requires:
+            - build 
+          filters:
+            branches:
+              only: main     
+      - build-and-push:  
+          filters:
+            tags:
+              only: /^v.*/  
+            branches: 
+              ignore: /.*/
+      - deploy:
+          requires:
+            - build-and-push
+          filters:
+            tags:
+              only: /^v.*/
+            branches: 
+              ignore: /.*/

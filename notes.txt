@@ -1,3 +1,98 @@
+Circle CI pipeline
+
+version: 2.1
+orbs:
+  node: circleci/node@5.0.1
+  docker: circleci/docker@2.1.4
+  heroku: circleci/heroku@2.0.0
+jobs:
+  build:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: |
+          echo Installing dependencies...”
+          npm install
+  test:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: |
+          echo “Running tests...”
+          npm run test
+  
+  build-and-push:
+    executor: docker/docker    
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check
+      - docker/build:
+          image: edisonzsq/education-space
+          tag: <<pipeline.git.tag>>
+      - docker/push:
+          image: edisonzsq/education-space
+          tag: <<pipeline.git.tag>>
+
+  deploy:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - setup_remote_docker      
+      - heroku/install
+      - checkout
+      - run:
+          name: Heroku Container Push
+          command: | 
+            heroku container:login
+            heroku container:push web -a edison-su-devops
+            heroku container:release web -a edison-su-devops
+
+workflows:
+  simple_workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: main
+      - test:
+          requires:
+            - build 
+          filters:
+            branches:
+              only: main     
+      - build-and-push:  
+          filters:
+            tags:
+              only: /^v.*/  
+            branches: 
+              ignore: /.*/
+      - deploy:
+          requires:
+            - build-and-push
+          filters:
+            tags:
+              only: /^v.*/
+            branches: 
+              ignore: /.*/
+
+================================
+
+CircleCi ENV Variable
+HEROKU_API_KEY = c3838d1c-7ae2-4a21-9013-7e4d862976f4
+HEROKU_APP_NAME = simple-crm-jpa
+DOCKER_PASSWORD = 
+DOCKER_LOGIN=
+
+
+========================
+
 JPA with H2
 
 What is H2?
