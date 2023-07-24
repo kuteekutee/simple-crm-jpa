@@ -33,9 +33,15 @@ jobs:
   snyk_scan:
     docker:
       - image: cimg/openjdk:17.0.7
+    environment:
+      IMAGE_NAME: jiaboeng/simple-crm-jpa
     steps:
       - checkout
-      - snyk/scan
+      - setup_remote_docker
+      - docker/check
+      - run: docker build -t $IMAGE_NAME .
+      - snyk/scan: 
+          docker-image-name: $IMAGE_NAME
   
   # Job to build the Docker iamge and push to DockerHub
   docker_build_and_push:
@@ -73,6 +79,8 @@ workflows:
             branches:
               only: develop
       - snyk_scan:
+          requires:
+            - build_and_test
           filters:
             branches:
               only: develop
