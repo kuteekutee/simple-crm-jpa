@@ -89,7 +89,7 @@ workflows:
               only: release
       - docker_build_and_push:
           requires:
-            - maven_build_and_test
+            - build_and_test
             - snyk_scan
           filters:
             branches:
