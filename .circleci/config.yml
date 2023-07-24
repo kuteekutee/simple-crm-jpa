@@ -11,16 +11,17 @@ jobs:
       - run: mvn clean package
   
   test:
-    # docker:
-    #   - image: cimg/openjdk:17.0.7
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
-      # - checkout
+      - checkout
       - run: |
           echo “Running tests...”
           mvn test
   push:
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
-      # configure CircleCI to use Docker
       - setup_remote_docker
       - run:
           name: Build and Push Docker Image
@@ -39,14 +40,11 @@ workflows:
       - test:
           requires:
             - build 
-          filters:
-            branches:
-              only: develop     
-      - push:  
+       - push:  
           requires:
             - test
           filters:
-            tags:
-              only: /^v.*/  
-            branches: 
-              ignore: /.*/
+              branches:
+                only: develop     
+      
+         
