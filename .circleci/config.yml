@@ -91,7 +91,7 @@ workflows:
       - build_and_test:
           filters:
             branches:
-              only: release
+              only: release/MYRELEASE
       # - snyk_scan:
       #     filters:
       #       branches:
@@ -102,7 +102,7 @@ workflows:
             # - snyk_scan
           filters:
             branches:
-              only: release
+              only: release/MYRELEASE
       - deploy_to_heroku:
           requires:
             - docker_build_and_push
