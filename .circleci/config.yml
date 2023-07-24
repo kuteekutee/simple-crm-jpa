@@ -36,6 +36,7 @@ jobs:
       IMAGE_NAME: jiaboeng/simple-crm-jpa
     steps:
       - checkout
+      - run: mvn clean package
       - setup_remote_docker
       - docker/check
       - run: docker build -t $IMAGE_NAME .
