@@ -6,7 +6,8 @@ orbs:
   heroku: circleci/heroku@2.0.0
 jobs:
   maven_build_and_test:
-    executor: maven/default
+    executor: maven/default:
+      tag: '17.0'
     steps:
       - checkout
       - run: 
