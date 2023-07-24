@@ -14,20 +14,6 @@ jobs:
       - run: |
           echo “Running tests...”
           mvn test
-  # maven_build_and_test:
-  #   - maven/test:
-  #       executor:
-  #         maven/default:
-  #           tag: '17.0'
-  #         maven_command: mvn
-  #         command: clean install
-  #         settings_file: settings.xml
-  #         verify_dependencies: false
-    # steps:
-    #   - checkout
-    #   - run: 
-    #       name: Run Maven Build and Test
-    #       command: mvn clean test
   
   #Job to perform Snyk scan
   snyk_scan:
@@ -46,7 +32,9 @@ jobs:
   
   # Job to build the Docker iamge and push to DockerHub
   docker_build_and_push:
-    executor: docker/docker
+    # executor: docker/docker
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
       - checkout
       - setup_remote_docker
