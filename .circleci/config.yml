@@ -1,49 +1,86 @@
 version: 2.1
+orbs:
+  docker: circleci/docker@2.2.0
+  maven: circleci/maven@1.4.1
+  snyk: snyk/snyk@1.7.0
 jobs:
-  build:
-    docker:
-      - image: cimg/openjdk:17.0.7
+  maven_build_and_test:
+    executor: maven/default
     steps:
-      # Fetch source code from repo
       - checkout
-
-      # Package into a jar
-      - run: mvn clean package
+      - run: 
+          name: Run Maven Build and Test
+          command: mvn clean test
   
-  test:
-    docker:
-      - image: cimg/openjdk:17.0.7
+  #Job to perform Snyk scan
+  snyk_scan:
+    executor: maven/default
     steps:
       - checkout
-      - run: |
-          echo “Running tests...”
-          mvn test
-  push:
-    docker:
-      - image: cimg/openjdk:17.0.7
+      - snyk/scan
+  
+  # Job to build the Docker iamge and push to DockerHub
+  docker_build_and_push:
+    executor: docker/default
     steps:
       - checkout
-      - run: mvn clean package
       - setup_remote_docker
       - run:
           name: Build and Push Docker Image
-          # Build docker image and tag it with commit SHA, then push to docker hub
-          command:
+          command: |
             docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD}
-
             docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1} .
-
-            docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:latest .
-
             docker push ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1}
 
-            docker push ${DOCKER_LOGIN}/simple-crm-jpa:latest
+  # Deploy to Heroku
+  deploy_to_heroku:
+    executor: docker/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - heroku/install
+      - run:
+          name: Heroku Container Push
+          command: |
+            heroku container:login
+            heroku container:push web -a simple-crm-jpa
+            heroku container:release web -a simple-crm-jpa
 
 workflows:
-  ci_workflow:
+  version: 2
+  ci_flow:
     jobs:
-      - build
-      - test
-      - push  
-      
+      - maven_build_and_test:
+          filters:
+            branches:
+              only: develop
+      - snyk_scan:
+          filters:
+            branches:
+              only: develop
+
+  cicd_flow:
+    jobs:
+      - maven_build_and_test:
+          filters:
+            branches:
+              only: release
+      - snyk_scan:
+          filters:
+            branches:
+              only: release
+      - docker_build_and_push:
+          requires:
+            - maven_build_and_test
+            - snyk_scan
+          filters:
+            branches:
+              only: release
+      - deploy_to_heroku:
+          requires:
+            - docker_build_and_push
+          filters:
+            branches:
+              only: main
+
          
