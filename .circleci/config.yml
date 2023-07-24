@@ -36,7 +36,10 @@ jobs:
 workflows:
   ci_workflow:
     jobs:
-      - build
+      - build:
+        filters:
+            branches:
+              ignore: /.*/
       - test:
           requires:
             - build 
