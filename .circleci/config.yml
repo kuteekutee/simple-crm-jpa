@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.2.0
   maven: circleci/maven@1.4.1
-  snyk: snyk/snyk@1.7.0
+  snyk: snyk/snyk@1.4.0
   heroku: circleci/heroku@2.0.0
 jobs:
   build_and_test:
@@ -39,7 +39,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - docker/check
-      # - run: docker build -t $IMAGE_NAME .
+      - run: docker build -t $IMAGE_NAME .
       - snyk/scan: 
           docker-image-name: $IMAGE_NAME
   
