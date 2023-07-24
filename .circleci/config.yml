@@ -1,6 +1,5 @@
 version: 2.1
 orbs:
-  docker: circleci/docker@2.2.0
   heroku: circleci/heroku@2.0.0
 jobs:
   build:
@@ -23,17 +22,18 @@ jobs:
           mvn test
   
   build-and-push:
-    executor: docker/docker    
     steps:
       - setup_remote_docker
       - checkout
-      - docker/check
-      - docker/build:
-          image: ${DOCKER_USER}/simple-crm-jpa
-          tag: <<pipeline.git.tag>>
-      - docker/push:
-          image: ${DOCKER_USER}/simple-crm-jpa
-          tag: <<pipeline.git.tag>>
+      - run:
+          name: Build and Push Docker Image
+          # Build docker image and tag it with commit SHA, then push to docker hub
+          command:
+            docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD}
+            docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1} .
+            docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_TAG} .
+            docker push ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1}
+            docker push ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_TAG}
 
   deploy:
     docker:
@@ -63,9 +63,11 @@ workflows:
             branches:
               only: main     
       - build-and-push:  
+          requires:
+            - build
           filters:
             tags:
-              only: /^v.*/  
+              only: /^version-.*/  
             branches: 
               ignore: /.*/
       - deploy:
@@ -73,6 +75,6 @@ workflows:
             - build-and-push
           filters:
             tags:
-              only: /^v.*/
+              only: /^deploy.*/
             branches: 
               ignore: /.*/
