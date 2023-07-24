@@ -6,13 +6,19 @@ orbs:
   heroku: circleci/heroku@2.0.0
 jobs:
   maven_build_and_test:
-    executor: maven/default:
-      tag: '17.0'
-    steps:
-      - checkout
-      - run: 
-          name: Run Maven Build and Test
-          command: mvn clean test
+    - maven/test:
+        executor:
+          maven/default:
+            tag: '17.0'
+        maven_command: mvn
+          command: clean install
+          settings_file: settings.xml
+          verify_dependencies: false
+    # steps:
+    #   - checkout
+    #   - run: 
+    #       name: Run Maven Build and Test
+    #       command: mvn clean test
   
   #Job to perform Snyk scan
   snyk_scan:
