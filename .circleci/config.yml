@@ -17,7 +17,7 @@ jobs:
           name: Build and Push Docker Image
           # Build docker image and tag it with commit SHA, then push to docker hub
           command:
-            docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASS}
+            docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD}
 
             docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1} .
 
