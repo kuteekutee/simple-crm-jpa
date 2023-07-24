@@ -9,20 +9,44 @@ jobs:
 
       # Package into a jar
       - run: mvn clean package
-
+  
+  test:
+    # docker:
+    #   - image: cimg/openjdk:17.0.7
+    steps:
+      # - checkout
+      - run: |
+          echo “Running tests...”
+          mvn test
+  push:
+    steps:
       # configure CircleCI to use Docker
       - setup_remote_docker
-
       - run:
           name: Build and Push Docker Image
           # Build docker image and tag it with commit SHA, then push to docker hub
           command:
             docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD}
-
             docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1} .
-
             docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:latest .
-
             docker push ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1}
-
             docker push ${DOCKER_LOGIN}/simple-crm-jpa:latest
+
+workflows:
+  ci_workflow:
+    jobs:
+      - build:
+      - test:
+          requires:
+            - build 
+          filters:
+            branches:
+              only: develop     
+      - push:  
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/  
+            branches: 
+              ignore: /.*/
