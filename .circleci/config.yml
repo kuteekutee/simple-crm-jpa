@@ -10,7 +10,7 @@ jobs:
         executor:
           maven/default:
             tag: '17.0'
-        maven_command: mvn
+          maven_command: mvn
           command: clean install
           settings_file: settings.xml
           verify_dependencies: false
