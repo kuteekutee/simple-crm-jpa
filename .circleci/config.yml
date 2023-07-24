@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  heroku: circleci/heroku@2.0.0
 jobs:
   build:
     docker:
@@ -12,69 +10,19 @@ jobs:
       # Package into a jar
       - run: mvn clean package
 
-  test:
-    docker:
-      - image: cimg/openjdk:17.0.7
-    steps:
-      - checkout
-      - run: |
-          echo “Running tests...”
-          mvn test
-  
-  build-and-push:
-    steps:
+      # configure CircleCI to use Docker
       - setup_remote_docker
-      - checkout
+
       - run:
           name: Build and Push Docker Image
           # Build docker image and tag it with commit SHA, then push to docker hub
           command:
-            docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASSWORD}
-            docker build -t jiaboeng/simple-crm-jpa:${CIRCLE_SHA1} .
-            docker build -t jiaboeng/simple-crm-jpa:${CIRCLE_TAG} .
-            docker push jiaboeng/simple-crm-jpa:${CIRCLE_SHA1}
-            docker push jiaboeng/simple-crm-jpa:${CIRCLE_TAG}
+            docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASS}
 
-  deploy:
-    docker:
-      - image: cimg/openjdk:17.0.7
-    steps:
-      - setup_remote_docker      
-      - heroku/install
-      - checkout
-      - run:
-          name: Heroku Container Push
-          command: | 
-            heroku container:login
-            heroku container:push web -a simple-crm-jpa
-            heroku container:release web -a simple-crm-jpa
+            docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1} .
 
-workflows:
-  simple_crm_workflow:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: main
-      - test:
-          requires:
-            - build 
-          filters:
-            branches:
-              only: main     
-      - build-and-push:  
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^version-1/  
-            branches: 
-              ignore: /.*/
-      - deploy:
-          requires:
-            - build-and-push
-          filters:
-            tags:
-              only: /^deploy.*/
-            branches: 
-              ignore: /.*/
+            docker build -t ${DOCKER_LOGIN}/simple-crm-jpa:latest .
+
+            docker push ${DOCKER_LOGIN}/simple-crm-jpa:${CIRCLE_SHA1}
+
+            docker push ${DOCKER_LOGIN}/simple-crm-jpa:latest
