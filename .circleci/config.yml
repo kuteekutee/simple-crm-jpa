@@ -31,7 +31,8 @@ jobs:
   
   #Job to perform Snyk scan
   snyk_scan:
-    executor: docker/docker
+    docker:
+      - image: cimg/openjdk:17.0.7
     environment:
       IMAGE_NAME: jiaboeng/simple-crm-jpa
     steps:
