@@ -67,7 +67,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /^version-.*/  
+              only: /^version-1/  
             branches: 
               ignore: /.*/
       - deploy:
@@ -78,4 +78,3 @@ workflows:
               only: /^deploy.*/
             branches: 
               ignore: /.*/
-              
