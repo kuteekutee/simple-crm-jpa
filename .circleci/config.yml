@@ -5,15 +5,24 @@ orbs:
   snyk: snyk/snyk@1.7.0
   heroku: circleci/heroku@2.0.0
 jobs:
-  maven_build_and_test:
-    - maven/test:
-        executor:
-          maven/default:
-            tag: '17.0'
-          maven_command: mvn
-          command: clean install
-          settings_file: settings.xml
-          verify_dependencies: false
+  build_and_test:
+    docker:
+      - image: cimg/openjdk:17.0.7
+    steps:
+      - checkout
+      - run: mvn clean package
+      - run: |
+          echo “Running tests...”
+          mvn test
+  # maven_build_and_test:
+  #   - maven/test:
+  #       executor:
+  #         maven/default:
+  #           tag: '17.0'
+  #         maven_command: mvn
+  #         command: clean install
+  #         settings_file: settings.xml
+  #         verify_dependencies: false
     # steps:
     #   - checkout
     #   - run: 
@@ -22,7 +31,8 @@ jobs:
   
   #Job to perform Snyk scan
   snyk_scan:
-    executor: maven/default
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
       - checkout
       - snyk/scan
@@ -58,7 +68,7 @@ workflows:
   version: 2
   ci_flow:
     jobs:
-      - maven_build_and_test:
+      - build_and_test:
           filters:
             branches:
               only: develop
@@ -69,7 +79,7 @@ workflows:
 
   cicd_flow:
     jobs:
-      - maven_build_and_test:
+      - build_and_test:
           filters:
             branches:
               only: release
