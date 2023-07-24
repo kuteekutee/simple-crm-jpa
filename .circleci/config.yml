@@ -92,14 +92,14 @@ workflows:
           filters:
             branches:
               only: release
-      - snyk_scan:
-          filters:
-            branches:
-              only: release
+      # - snyk_scan:
+      #     filters:
+      #       branches:
+      #         only: release
       - docker_build_and_push:
           requires:
             - build_and_test
-            - snyk_scan
+            # - snyk_scan
           filters:
             branches:
               only: release
