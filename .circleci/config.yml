@@ -21,7 +21,7 @@ jobs:
   
   # Job to build the Docker iamge and push to DockerHub
   docker_build_and_push:
-    executor: docker/default
+    executor: docker/docker
     steps:
       - checkout
       - setup_remote_docker
@@ -34,7 +34,7 @@ jobs:
 
   # Deploy to Heroku
   deploy_to_heroku:
-    executor: docker/default
+    executor: docker/docker
     steps:
       - checkout
       - setup_remote_docker
