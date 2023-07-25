@@ -97,6 +97,8 @@ workflows:
           requires:
             - docker_build_and_push
           filters:
+            tags:
+              only: MYRELEASE
             branches:
               only: main
 
