@@ -77,27 +77,29 @@ workflows:
 
   cicd_flow:
     jobs:
-      - build_and_test:
-          filters:
-            branches:
-              only: release/MYRELEASE
+      # - build_and_test:
+      #     filters:
+      #       branches:
+      #         only: release/MYRELEASE
       # - snyk_scan:
       #     filters:
       #       branches:
       #         only: release
       - docker_build_and_push:
-          requires:
-            - build_and_test
+          # requires:
+          #   - build_and_test
             # - snyk_scan
             #
           filters:
+            tags: 1.0.0
             branches:
-              only: release/MYRELEASE
+              only: release
       - deploy_to_heroku:
           requires:
             - docker_build_and_push
           filters:
+             tags: 1.0.0
             branches:
-              only: release/MYRELEASE
+              only: main
 
          
