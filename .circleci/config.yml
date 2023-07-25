@@ -48,9 +48,12 @@ jobs:
 
   # Deploy to Heroku
   deploy_to_heroku:
-    executor: docker/docker
+    #executor: docker/docker
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
       - checkout
+      - run: mvn clean package
       - setup_remote_docker
       - heroku/install
       - run:
