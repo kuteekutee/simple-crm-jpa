@@ -60,7 +60,6 @@ jobs:
             heroku container:release web -a simple-crm-jpa
 
 workflows:
-  version: 2
   ci_flow:
     jobs:
       - build_and_test:
