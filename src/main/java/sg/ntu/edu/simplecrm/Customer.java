@@ -6,6 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 // import java.util.UUID;
 
@@ -18,10 +21,14 @@ public class Customer {
   @Column(name = "id")
   private int id;
   @Column(name = "first_name")
+  @NotBlank(message = "First name is mandatory.")
+  @Size(min = 2, max = 15, message ="First name must be between 2 and 15 characters.")
   private String firstName;
   @Column(name = "last_name")
   private String lastName;
   @Column(name = "email")
+  @NotBlank(message = "Email is mandatory.")
+  @Email(message = "Email must be valid.")
   private String email;
   @Column(name = "contact_no")
   private String contactNo;
@@ -36,6 +43,18 @@ public class Customer {
 
   public int getId() {
     return this.id;
+  }
+
+  public Customer() {}
+  public Customer(int id, String firstName, String lastName, String email, String contactNo, String jobTitle,
+      int yearOfBirth) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.contactNo = contactNo;
+    this.jobTitle = jobTitle;
+    this.yearOfBirth = yearOfBirth;
   }
 
   public void setId(int id) {

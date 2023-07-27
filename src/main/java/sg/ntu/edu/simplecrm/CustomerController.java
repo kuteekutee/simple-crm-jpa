@@ -1,6 +1,6 @@
 package sg.ntu.edu.simplecrm;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,9 +36,9 @@ public class CustomerController {
   // 2. READ (Get and Get All)
   // Get All Customers
   @GetMapping("")
-  public ResponseEntity<ArrayList<Customer>> getAllCustomers() {
+  public ResponseEntity<List<Customer>> getAllCustomers() {
 
-    ArrayList<Customer> allCustomers = customerService.getAllCustomers();
+    List<Customer> allCustomers = customerService.getAllCustomers();
     return new ResponseEntity<>(allCustomers, HttpStatus.OK);
   }
 

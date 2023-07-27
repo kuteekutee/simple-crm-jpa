@@ -1,7 +1,7 @@
 package sg.ntu.edu.simplecrm;
 
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,9 +51,9 @@ public class CustomerServiceImpl implements CustomerService {
 
   // Get All
   @Override
-  public ArrayList<Customer> getAllCustomers() {
+  public List<Customer> getAllCustomers() {
     List<Customer> allCustomers = customerRepository.findAll();
-    return (ArrayList<Customer>)allCustomers;
+    return (List<Customer>)allCustomers;
   }
 
   // Update
