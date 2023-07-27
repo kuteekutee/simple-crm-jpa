@@ -47,9 +47,12 @@ jobs:
 
   # Deploy to Heroku
   deploy_to_heroku:
-    executor: docker/docker
+    #executor: docker/docker
+    docker:
+      - image: cimg/openjdk:17.0.7
     steps:
       - checkout
+      - run: mvn clean package
       - setup_remote_docker
       - heroku/install
       - run:
@@ -75,21 +78,10 @@ workflows:
 
   cicd_flow:
     jobs:
-      - build_and_test:
-          filters:
-            branches:
-              only: release/MYRELEASE
-      # - snyk_scan:
-      #     filters:
-      #       branches:
-      #         only: release
       - docker_build_and_push:
-          requires:
-            - build_and_test
-            # - snyk_scan
           filters:
             branches:
-              only: release/MYRELEASE
+              only: main
       - deploy_to_heroku:
           requires:
             - docker_build_and_push
